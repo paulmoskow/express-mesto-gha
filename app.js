@@ -1,4 +1,3 @@
-/* Заведите в нём express-сервер и настройте его запуск на 3000 порту по команде: npm run start */
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -17,6 +16,9 @@ app.use(json);
 
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
+router.use('*', (req, res) => {
+  res.status(404).send({ message: 'Некорректный роут' })
+})
 
 app.use((req, res, next) => {
   req.user = {
