@@ -2,15 +2,30 @@
 # Проект Mesto фронтенд + бэкенд
 
 
-## Директории
+# Проект: Место
 
-`/routes` — папка с файлами роутера  
-`/controllers` — папка с файлами контроллеров пользователя и карточки   
-`/models` — папка с файлами описания схем пользователя и карточки  
-  
-Остальные директории вспомогательные, создаются при необходимости разработчиком
+И снова сайт об уникальных местах России (или того, что понимают под этим студенты Яндекса) с возможностью для пользователя иметь публичный профиль и редактировать свои данные, добавлять фотографии и делать их описание, ставить лайки, а может в перспективе и комментарии будем писать.
 
-## Запуск проекта
+## В поекте применены такие технологии, как:
 
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
+* **Node.js**
+* **express.js**
+* **MongoDB**
+* **Create React App**
+* **Representational State Transfer**
+* **React Router**
+* **React**
+* **JSX**
+* **API**
+* **object-oriented programming**
+* **ES6 Modules**
+* **managing elements with JS**
+* **handling and validation forms with JS**
+* **adaptive css**
+* **Grid Layout**
+* **flexbox**
+* **pseudo classes**
+* **BEM methodology**
+* **nested file structure**
+
+### Публичная ссылка на проект: https://github.com/paulmoskow/express-mesto-gha 
