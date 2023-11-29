@@ -4,27 +4,19 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    default: '',
-    required: {
-      value: true,
-      message: 'Это обязательное поле'},
-    minlength: [2, 'Минимальная длина 2 символа'],
-    maxlength: [30, 'Максимальная длина 30 символов']
+    required: true,
+    minlength: 2,
+    maxlength: 30
   },
   about: {
     type: String,
-    required: {
-      value: true,
-      message: 'Это обязательное поле'},
-    minlength: [2, 'Минимальная длина 2 символа'],
-    maxlength: [30, 'Максимальная длина 30 символов']
+    required: true,
+    minlength: 2,
+    maxlength: 30
   },
   avatar: {
     type: String,
-    default: '',
-    required: {
-      value: true,
-      message: 'Это обязательное поле'},
+    required: true
   }
 });
 
