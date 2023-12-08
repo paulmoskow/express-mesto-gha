@@ -4,13 +4,7 @@ const User = require('../models/User');
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then(users => res.send({ data: users }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' })
-      }
-    });
+    .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 
@@ -19,7 +13,7 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then(user => res.send({ data: user }))
+    .then(user => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
@@ -32,9 +26,12 @@ module.exports.createUser = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
+    .orFail()
     .then(user => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
+      } if (err.name === 'DocumentNotFoundError') {
         return res.status(404).send({ message: 'Пользователь не найден' })
       } else {
         res.status(500).send({ message: 'Произошла ошибка' })
@@ -45,7 +42,8 @@ module.exports.getUserById = (req, res) => {
 module.exports.updateUserProfile = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.params.id, { name: name, about: about }, { new: true })
+  User.findByIdAndUpdate(req.params.id, { name: name, about: about }, { new: true, runValidators: true  })
+    .orFail()
     .then(user => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -61,7 +59,8 @@ module.exports.updateUserProfile = (req, res) => {
 module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.params.id, { avatar: avatar }, { new: true })
+  User.findByIdAndUpdate(req.params.id, { avatar: avatar }, { new: true, runValidators: true })
+    .orFail()
     .then(user => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {

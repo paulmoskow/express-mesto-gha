@@ -3,13 +3,7 @@ const Card = require('../models/card');
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then(cards => res.send({ data: cards }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' })
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' })
-      }
-    });
+    .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 
@@ -19,8 +13,8 @@ module.exports.createCard = (req, res) => {
 
   const { name, link } = req.body;
 
-  Card.create({ name, link })
-    .then(card => res.send({ data: card }))
+  Card.create({ name, link, owner })
+    .then(card => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' })
@@ -33,16 +27,20 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
+    .orFail()
     .then(card => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(404).send({ message: 'Карточка не найдена' })
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' })
       }
     });
   };
 
 module.exports.likeCard = (req, res) => {
-  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true, runValidators: true })
+    .orFail()
     .then(card => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
@@ -56,7 +54,8 @@ module.exports.likeCard = (req, res) => {
   };
 
 module.exports.dislikeCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
+  Card.findByIdAndRemove(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true, runValidators: true })
+    .orFail()
     .then(card => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
