@@ -4,7 +4,7 @@ const { getCards,
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard
+  dislikeCard,
 } = require('../controllers/cards');
 
 cardRouter.get('/', getCards);

@@ -1,4 +1,81 @@
-const Card = require('../models/card');
+const Card = require('../models/Card');
+const NotFoundError = require('../errors/not-found-err');
+const ValidationError = require('../errors/validation-err');
+
+module.exports.getCards = (req, res, next) => {
+  Card.find({})
+    .then((cards) => res.send({ data: cards }))
+    .catch(next);
+};
+
+module.exports.createCard = (req, res, next) => {
+  Card.create({
+    name: req.body.name,
+    link: req.body.link,
+    owner: req.user._id,
+  })
+    .then((card) => {
+      if (!card) {
+        throw new ValidationError('Переданы некорректные данные при создании карточки');
+      }
+      res.status(201).send({ data: card });
+    })
+    .catch(next);
+};
+
+module.exports.deleteCard = (req, res, next) => {
+  const owner = req.params.owner._id;
+  const cardOwner = req.user._id;
+  if (owner !== cardOwner) {
+    return res.status(403).send({ error: 'Вы не можете удалить эту карточку' });
+  }
+  Card.findByIdAndRemove(req.params.id)
+    .orFail()
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка не найдена');
+      }
+      res.status(201).send({ data: card });
+    })
+    .catch(next);
+};
+
+module.exports.likeCard = (req, res, next) => {
+  Card.findByIdAndUpdate(req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true, runValidators: true })
+    .orFail()
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка не найдена');
+      }
+      res.status(201).send({ data: card });
+    })
+    .catch(next);
+};
+
+module.exports.dislikeCard = (req, res, next) => {
+  Card.findByIdAndRemove(req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true, runValidators: true })
+    .orFail()
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка не найдена');
+      }
+      res.status(201).send({ data: card });
+    })
+    .catch(next);
+};
+
+
+
+
+
+
+/*
+  const Card = require('../models/Card');
+const NotFoundError = require('./errors/not-found-err');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -23,6 +100,11 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
+  const owner = req.params.owner._id;
+  const cardOwner = req.user._id;
+  if (owner !== cardOwner) {
+    return res.status(403).send({ error: 'Вы не можете удалить эту карточку' });
+  }
   Card.findByIdAndRemove(req.params.id)
     .orFail()
     .then(card => res.send({ data: card }))
@@ -33,7 +115,7 @@ module.exports.deleteCard = (req, res) => {
         res.status(500).send({ message: 'Произошла ошибка' })
       }
     });
-  };
+};
 
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true, runValidators: true })
@@ -63,4 +145,4 @@ module.exports.dislikeCard = (req, res) => {
         res.status(500).send({ message: 'Произошла ошибка' })
       }
     });
-  };
+  };*/

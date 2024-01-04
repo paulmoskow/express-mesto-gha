@@ -15,30 +15,32 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Поле обязательно к заполнению'],
-    select: false
+    select: false,
   },
   name: {
     type: String,
     role: { type: String, default: 'Жак-Ив Кусто' },
     minlength: [2, 'Минимальная длина - 2 символа'],
-    maxlength: [30, 'Максимальная длина - 30 символов']
+    maxlength: [30, 'Максимальная длина - 30 символов'],
   },
   about: {
     type: String,
     role: { type: String, default: 'Исследователь' },
     minlength: [2, 'Минимальная длина - 2 символа'],
-    maxlength: [30, 'Максимальная длина - 30 символов']
+    maxlength: [30, 'Максимальная длина - 30 символов'],
   },
   avatar: {
     type: String,
     role: { type: String, default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png' },
     validate: {
-      validator: (v) => validator.isURL(v),
+      validator: (v) => {
+        return /^(https?):\/\/[^ "]+$/.test(v);
+      },
       message: 'Некорректный URL',
     },
   },
 },
-{ versionKey: false }
+{ versionKey: false, timestamps: true },
 );
 
 // check users email and password

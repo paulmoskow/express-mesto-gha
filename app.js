@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const router = require('express').Router();
 const json = require('express').json();
+const cookieParser = require('cookie-parser');
+const { celebrate, Joi } = require('celebrate');
+
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -11,30 +14,44 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
+app.use(cookieParser());
+
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use(json);
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    title: Joi.string().required().min(2).max(30),
+    text: Joi.string().required().min(2),
+  }).unknown(true),
+}), login);
 
-app.use(auth);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    title: Joi.string().required().min(2).max(30),
+    text: Joi.string().required().min(2),
+  }).unknown(true),
+}), createUser);
 
-router.use('/users', userRouter);
-router.use('/cards', cardRouter);
+router.use('/users', auth, userRouter);
+router.use('/cards', auth, cardRouter);
 router.use('*', (req, res) => {
   res.status(404).send({ message: 'Некорректный роут' })
-})
-
-/*app.use((req, res, next) => {
-  req.user = {
-    _id: '6565f62fb7d05e2a4095fc51'
-  };
-
-  next();
-});*/
+});
 
 app.use(router);
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'Произошла ошибка'
+        : message
+    });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`)
