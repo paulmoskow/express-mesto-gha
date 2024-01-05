@@ -3,12 +3,13 @@ const mongoose = require('mongoose');
 const router = require('express').Router();
 const json = require('express').json();
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi } = require('celebrate');
+const { errors, celebrate, Joi } = require('celebrate');
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const ValidationError = require('./errors/validation-err');
 
 const { PORT = 3000 } = process.env;
 
@@ -22,25 +23,34 @@ app.use(json);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    title: Joi.string().required().min(2).max(30),
-    text: Joi.string().required().min(2),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
   }).unknown(true),
 }), login);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    title: Joi.string().required().min(2).max(30),
-    text: Joi.string().required().min(2),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().uri(),
   }).unknown(true),
 }), createUser);
 
-router.use('/users', auth, userRouter);
-router.use('/cards', auth, cardRouter);
+app.use(auth);
+
+router.use('/users', userRouter);
+router.use('/cards', cardRouter);
 router.use('*', (req, res) => {
-  res.status(404).send({ message: 'Некорректный роут' })
+  if (res.status === 404) {
+    throw new ValidationError('Некорректный роут');
+  }
 });
 
 app.use(router);
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
@@ -49,7 +59,7 @@ app.use((err, req, res, next) => {
     .send({
       message: statusCode === 500
         ? 'Произошла ошибка'
-        : message
+        : message,
     });
 });
 

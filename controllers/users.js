@@ -3,9 +3,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-err');
+const Conflict = require('../errors/conflict');
+const UnauthorizedAccess = require('../errors/unauthorizedaccess');
 
 const MONGO_DUPLICATE_ERROR_CODE = 11000;
 const SOLT_ROUND = 10;
+const UNAUTHORIZED_ACCESS = 401;
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -28,18 +31,19 @@ module.exports.createUser = (req, res, next) => {
       if (!user) {
         throw new ValidationError('Переданы некорректные данные при создании пользователя');
       }
-      res.status(201).send({ data: user });
-    })
-    .catch((err) => {
-      if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
-        return res.status(409).send({ message: 'Такой пользователь уже зарегистрирован' });
+      try {
+        res.status(201).send({ data: user });
+      } catch (err) {
+        if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+          throw new Conflict('Такой пользователь уже зарегистрирован');
+        }
       }
-      next(err);
-    });
+    })
+    .catch(next);
 };
 
 // send cookie after authentication
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -49,7 +53,6 @@ module.exports.login = (req, res) => {
         'some-secret-key',
         { expiresIn: '7d' },
       );
-
       res
         .cookie('jwt', token, {
           maxAge: 604800000,
@@ -58,21 +61,22 @@ module.exports.login = (req, res) => {
         .end();
     })
     .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
+      if (err.code === UNAUTHORIZED_ACCESS) {
+        throw new UnauthorizedAccess('Необходима авторизация');
+      }
+      next(err);
     });
 };
 
 module.exports.getUserById = (req, res, next) => {
-  User.findById(req.params.id)
+  User.findById(req.params._id)
     .orFail()
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
       }
       try {
-        res.status(201).send({ data: user });
+        res.status(200).send({ data: user });
       } catch (err) {
         if (err instanceof ValidationError) {
           throw new ValidationError('Переданы некорректные данные при создании пользователя');
@@ -92,7 +96,7 @@ module.exports.getUserData = (req, res, next) => {
         throw new NotFoundError('Пользователь не найден');
       }
       try {
-        res.status(201).send({ data: user });
+        res.status(200).send({ data: user });
       } catch (err) {
         if (err instanceof ValidationError) {
           throw new ValidationError('Переданы некорректные данные при создании пользователя');
