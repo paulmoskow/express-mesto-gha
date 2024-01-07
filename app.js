@@ -14,7 +14,6 @@ const ValidationError = require('./errors/validation-err');
 const { PORT = 3000 } = process.env;
 
 const app = express();
-
 app.use(cookieParser());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
@@ -53,6 +52,8 @@ app.use(router);
 app.use(errors());
 
 app.use((err, req, res, next) => {
+  console.log(err);
+
   const { statusCode = 500, message } = err;
   res
     .status(statusCode)
@@ -64,5 +65,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`)
+  console.log(`App listening on port ${PORT}`);
 });

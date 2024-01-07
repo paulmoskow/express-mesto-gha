@@ -31,10 +31,10 @@ module.exports.deleteCard = (req, res, next) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       }
-      if (card.owner._id !== req.params.owner._id) {
+      if (card.owner !== req.user._id) {
         throw new Forbidden('Вы не можете удалить эту карточку');
       }
-      Card.findByIdAndRemove(req.params.id);
+      Card.deleteOne(card);
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       }
