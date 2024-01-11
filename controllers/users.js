@@ -12,7 +12,7 @@ const UNAUTHORIZED_ACCESS = 401;
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(201).send({ data: users }))
+    .then((users) => res.status(200).send({ data: users }))
     .catch(next);
 };
 
@@ -94,7 +94,7 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.getUserData = (req, res, next) => {
-  const { email } = req.body;
+  const { email } = req.query;
 
   User.findOne({ email })
     .orFail()
@@ -114,7 +114,7 @@ module.exports.getUserData = (req, res, next) => {
 };
 
 module.exports.updateUserProfile = (req, res, next) => {
-  const { name, about } = req.body;
+  const { name, about } = req.query;
 
   User.findByIdAndUpdate(
     req.params.id,
@@ -127,7 +127,7 @@ module.exports.updateUserProfile = (req, res, next) => {
         throw new NotFoundError('Пользователь не найден');
       }
       try {
-        res.status(201).send({ data: user });
+        res.status(200).send({ data: user });
       } catch (err) {
         if (err instanceof ValidationError) {
           throw new ValidationError('Переданы некорректные данные при создании пользователя');
@@ -138,7 +138,7 @@ module.exports.updateUserProfile = (req, res, next) => {
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
-  const { avatar } = req.body;
+  const { avatar } = req.query;
 
   User.findByIdAndUpdate(req.params.id, { avatar: avatar }, { new: true, runValidators: true })
     .orFail()
@@ -147,7 +147,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
         throw new NotFoundError('Пользователь не найден');
       }
       try {
-        res.status(201).send({ data: user });
+        res.status(200).send({ data: user });
       } catch (err) {
         if (err instanceof ValidationError) {
           throw new ValidationError('Переданы некорректные данные при создании пользователя');

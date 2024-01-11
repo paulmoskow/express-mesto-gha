@@ -17,20 +17,20 @@ userRouter.get('/:userId', celebrate({
 }), getUserById);
 
 userRouter.get('/me', celebrate({
-  body: Joi.object().keys({
+  query: Joi.object().keys({
     email: Joi.string().required().email(),
   }).unknown(true),
 }), getUserData);
 
 userRouter.patch('/me', celebrate({
-  body: Joi.object().keys({
+  query: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
   }).unknown(true),
 }), updateUserProfile);
 
 userRouter.patch('/me/avatar', celebrate({
-  body: Joi.object().keys({
+  query: Joi.object().keys({
     avatar: Joi.string().uri(),
   }).unknown(true),
 }), updateUserAvatar);
