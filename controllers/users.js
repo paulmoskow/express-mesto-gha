@@ -76,8 +76,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getUserById = (req, res, next) => {
-  User.findById(req.params.id)
-    .orFail()
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -94,10 +93,9 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.getUserData = (req, res, next) => {
-  const { email } = req.query;
+  const { _id } = req.body;
 
-  User.findOne({ email })
-    .orFail()
+  User.findOne({ _id })
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -114,10 +112,10 @@ module.exports.getUserData = (req, res, next) => {
 };
 
 module.exports.updateUserProfile = (req, res, next) => {
-  const { name, about } = req.query;
+  const { _id, name, about } = req.body;
 
   User.findByIdAndUpdate(
-    req.params.id,
+    _id,
     { name: name, about: about },
     { new: true, runValidators: true },
   )
@@ -138,9 +136,13 @@ module.exports.updateUserProfile = (req, res, next) => {
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
-  const { avatar } = req.query;
+  const { _id, avatar } = req.body;
 
-  User.findByIdAndUpdate(req.params.id, { avatar: avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    _id,
+    { avatar: avatar },
+    { new: true, runValidators: true },
+  )
     .orFail()
     .then((user) => {
       if (!user) {

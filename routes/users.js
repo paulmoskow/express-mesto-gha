@@ -10,27 +10,28 @@ const { getUsers,
 
 userRouter.get('/', getUsers);
 
-userRouter.get('/:userId', celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().alphanum().length(24),
-  }).unknown(true),
-}), getUserById);
-
 userRouter.get('/me', celebrate({
-  query: Joi.object().keys({
-    email: Joi.string().required().email(),
+  body: Joi.object().keys({
+    _id: Joi.string().required().alphanum().length(24),
   }).unknown(true),
 }), getUserData);
 
+userRouter.get('/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }).unknown(true),
+}), getUserById);
+
 userRouter.patch('/me', celebrate({
-  query: Joi.object().keys({
+  body: Joi.object().keys({
+    _id: Joi.string().required().alphanum().length(24),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
   }).unknown(true),
 }), updateUserProfile);
 
 userRouter.patch('/me/avatar', celebrate({
-  query: Joi.object().keys({
+  body: Joi.object().keys({
     avatar: Joi.string().uri(),
   }).unknown(true),
 }), updateUserAvatar);

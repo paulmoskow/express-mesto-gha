@@ -20,19 +20,19 @@ const userSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    role: { type: String, default: 'Жак-Ив Кусто' },
+    default: 'Жак-Ив Кусто',
     minlength: [2, 'Минимальная длина - 2 символа'],
     maxlength: [30, 'Максимальная длина - 30 символов'],
   },
   about: {
     type: String,
-    role: { type: String, default: 'Исследователь' },
+    default: 'Исследователь',
     minlength: [2, 'Минимальная длина - 2 символа'],
     maxlength: [30, 'Максимальная длина - 30 символов'],
   },
   avatar: {
     type: String,
-    role: { type: String, default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png' },
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator: (v) => {
         return /^(https?):\/\/[^ "]+$/.test(v);
