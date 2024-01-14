@@ -93,9 +93,7 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.getUserData = (req, res, next) => {
-  const { _id } = req.body;
-
-  User.findOne({ _id })
+  User.findOne({ _id: req.user._id })
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -112,10 +110,10 @@ module.exports.getUserData = (req, res, next) => {
 };
 
 module.exports.updateUserProfile = (req, res, next) => {
-  const { _id, name, about } = req.body;
+  const { name, about } = req.body;
 
   User.findByIdAndUpdate(
-    _id,
+    { _id: req.user._id },
     { name: name, about: about },
     { new: true, runValidators: true },
   )
@@ -136,10 +134,10 @@ module.exports.updateUserProfile = (req, res, next) => {
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
-  const { _id, avatar } = req.body;
+  const { avatar } = req.body;
 
   User.findByIdAndUpdate(
-    _id,
+    { _id: req.user._id },
     { avatar: avatar },
     { new: true, runValidators: true },
   )

@@ -10,11 +10,7 @@ const { getUsers,
 
 userRouter.get('/', getUsers);
 
-userRouter.get('/me', celebrate({
-  body: Joi.object().keys({
-    _id: Joi.string().required().alphanum().length(24),
-  }).unknown(true),
-}), getUserData);
+userRouter.get('/me', getUserData);
 
 userRouter.get('/:userId', celebrate({
   params: Joi.object().keys({
@@ -24,7 +20,6 @@ userRouter.get('/:userId', celebrate({
 
 userRouter.patch('/me', celebrate({
   body: Joi.object().keys({
-    _id: Joi.string().required().alphanum().length(24),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
   }).unknown(true),
