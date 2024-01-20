@@ -10,15 +10,17 @@ const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const ValidationError = require('./errors/validation-err');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
 app.use(cookieParser());
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+mongoose.connect('mongodb://158.160.138.162:27017/mestodb');
 
 app.use(json);
+app.use(requestLogger);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -49,6 +51,7 @@ router.use('*', (req, res) => {
 
 app.use(router);
 
+app.use(errorLogger);
 app.use(errors());
 
 app.use((err, req, res, next) => {
